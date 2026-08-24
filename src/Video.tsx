@@ -5,29 +5,39 @@ import { registry } from "./registry";
 import { Frame } from "./Frame";
 import { Captions } from "./Captions";
 
-/**
- * ONE composition = the whole video. Each beat is a <Sequence> on an absolute
- * timeline; audio sits underneath at exact frames; captions overlay on top.
- * There is no per-beat file, no concat, no re-timing. A card reused twice is
- * just two Sequences — the freeze / reused-card bug cannot occur here.
- */
+// If the next beat uses the SAME card, we don't want it to replay its entrance
+// (that reads as a fade between two identical cards). For a continuation beat we
+// start the card already-settled by giving the inner sequence a negative offset,
+// so its internal frame begins past the entrance window. Hard cut, no fade.
+const SETTLE = 90; // frames (~3s) - longer than any card entrance
+
 export const Video: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
+  const items = manifest.timeline;
   return (
     <AbsoluteFill>
       <Frame />
 
-      {manifest.timeline.map((item, i) => {
+      {items.map((item, i) => {
         const entry = registry[item.component];
-        if (!entry) return null; // unknown card: skip (builder should have caught it)
+        if (!entry) return null;
         const Card = entry.component;
+        const prev = items[i - 1];
+        const isContinuation = !!prev && prev.component === item.component;
+
         return (
           <Sequence
             key={`beat-${item.beat}-${i}`}
             from={item.startFrame}
             durationInFrames={item.durationFrames}
-            name={`${item.beat}: ${item.component}`}
+            name={`${item.beat}: ${item.component}${isContinuation ? " (cont)" : ""}`}
           >
-            <Card {...item.props} />
+            {isContinuation ? (
+              <Sequence from={-SETTLE}>
+                <Card {...item.props} />
+              </Sequence>
+            ) : (
+              <Card {...item.props} />
+            )}
           </Sequence>
         );
       })}
@@ -35,11 +45,7 @@ export const Video: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
       {manifest.audio
         .filter((a) => a.src)
         .map((a, i) => (
-          <Sequence
-            key={`audio-${i}`}
-            from={a.startFrame}
-            durationInFrames={a.durationFrames}
-          >
+          <Sequence key={`audio-${i}`} from={a.startFrame} durationInFrames={a.durationFrames}>
             <Audio src={a.src.startsWith("http") ? a.src : staticFile(a.src)} />
           </Sequence>
         ))}
