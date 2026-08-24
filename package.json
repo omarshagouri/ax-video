@@ -1,0 +1,27 @@
+{
+  "name": "ax-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AmpCoreX new visual engine (Remotion). Parallel to the old Agents 6-9; nothing here touches them.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render AmpCoreX out/video.mp4",
+    "typecheck": "tsc --noEmit",
+    "server": "node server/index.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.514",
+    "@remotion/cli": "4.0.290",
+    "@remotion/google-fonts": "4.0.290",
+    "@remotion/renderer": "^4.0.514",
+    "express": "^5.2.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.290",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}
