@@ -1,24 +1,24 @@
 import { z } from "zod";
 
 /**
- * The VideoManifest IS the video. One object, produced by the new Agent 6,
- * describes the whole timeline. Rendering is a pure function of it.
- * Frames (not seconds) so everything is exact and audio-locked.
+ * The VideoManifest IS the finished video (full assembly in one pass):
+ *   intro thumbnail still  ->  card beats + narration  ->  end clip (own audio)
+ * Frames, not seconds, so everything is exact and audio-locked.
  */
-
 export const timelineItemSchema = z.object({
   beat: z.number(),
-  component: z.string(), // e.g. "VC-SF-004" -> looked up in the registry
-  props: z.record(z.any()), // validated per-card against that card's schema
+  component: z.string().optional().default(""), // card id (for track "card")
+  props: z.record(z.any()).default({}),
+  src: z.string().optional(),                    // for track "image" / "clip"
   startFrame: z.number(),
   durationFrames: z.number(),
-  track: z.enum(["card", "clip", "anim"]).default("card"),
+  track: z.enum(["card", "clip", "anim", "image"]).default("card"),
 });
 export type TimelineItem = z.infer<typeof timelineItemSchema>;
 
 export const audioTrackSchema = z.object({
   chapter: z.number(),
-  src: z.string(), // http URL or a filename in /public
+  src: z.string(),
   startFrame: z.number(),
   durationFrames: z.number(),
 });

@@ -1,52 +1,65 @@
 import React from "react";
-import { AbsoluteFill, Sequence, Audio, staticFile } from "remotion";
+import { AbsoluteFill, Sequence, Audio, Img, OffthreadVideo, staticFile } from "remotion";
 import { VideoManifest } from "./manifest";
 import { registry } from "./registry";
 import { Frame } from "./Frame";
 import { Captions } from "./Captions";
+import { theme } from "./theme";
 
-// If the next beat uses the SAME card, we don't want it to replay its entrance
-// (that reads as a fade between two identical cards). For a continuation beat we
-// start the card already-settled by giving the inner sequence a negative offset,
-// so its internal frame begins past the entrance window. Hard cut, no fade.
-const SETTLE = 90; // frames (~3s) - longer than any card entrance
+const asset = (s: string) => (s.startsWith("http") || s.startsWith("data:") ? s : staticFile(s));
 
+/**
+ * ONE composition = the whole assembled video:
+ *   intro thumbnail still  ->  card beats + narration  ->  end clip (own audio)
+ * No per-beat files, no concat, no re-timing.
+ */
 export const Video: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
-  const items = manifest.timeline;
   return (
     <AbsoluteFill>
       <Frame />
 
-      {items.map((item, i) => {
+      {manifest.timeline.map((item, i) => {
+        const key = `t-${item.beat}-${i}`;
+
+        // Intro thumbnail: silent still, navy letterbox.
+        if (item.track === "image" && item.src) {
+          return (
+            <Sequence key={key} from={item.startFrame} durationInFrames={item.durationFrames} name={`intro:${item.beat}`}>
+              <AbsoluteFill style={{ backgroundColor: theme.navy }}>
+                <Img src={asset(item.src)} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </AbsoluteFill>
+            </Sequence>
+          );
+        }
+
+        // End clip (or any clip beat): plays with its own audio.
+        if (item.track === "clip" && item.src) {
+          return (
+            <Sequence key={key} from={item.startFrame} durationInFrames={item.durationFrames} name={`clip:${item.beat}`}>
+              <AbsoluteFill style={{ backgroundColor: theme.navy }}>
+                <OffthreadVideo src={asset(item.src)} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </AbsoluteFill>
+            </Sequence>
+          );
+        }
+
+        // Card beat.
         const entry = registry[item.component];
         if (!entry) return null;
         const Card = entry.component;
-        const prev = items[i - 1];
-        const isContinuation = !!prev && prev.component === item.component;
-
         return (
-          <Sequence
-            key={`beat-${item.beat}-${i}`}
-            from={item.startFrame}
-            durationInFrames={item.durationFrames}
-            name={`${item.beat}: ${item.component}${isContinuation ? " (cont)" : ""}`}
-          >
-            {isContinuation ? (
-              <Sequence from={-SETTLE}>
-                <Card {...item.props} />
-              </Sequence>
-            ) : (
-              <Card {...item.props} />
-            )}
+          <Sequence key={key} from={item.startFrame} durationInFrames={item.durationFrames} name={`${item.beat}: ${item.component}`}>
+            <Card {...item.props} />
           </Sequence>
         );
       })}
 
+      {/* Narration: chapter mp3s under the card section */}
       {manifest.audio
         .filter((a) => a.src)
         .map((a, i) => (
           <Sequence key={`audio-${i}`} from={a.startFrame} durationInFrames={a.durationFrames}>
-            <Audio src={a.src.startsWith("http") ? a.src : staticFile(a.src)} />
+            <Audio src={asset(a.src)} />
           </Sequence>
         ))}
 
