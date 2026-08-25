@@ -1,7 +1,7 @@
 // AmpCoreX assembly + render service (Cloud Run). ONE pass produces the finished
-// video: intro thumbnail still -> card beats + narration -> end clip (own audio).
+// video: Hook card + card beats + narration -> end clip (own audio). No intro still.
 //   POST /render-video     {manifest}
-//   POST /build-and-render {video_id, fps, beats[], audio_file_ids[], thumbnail_id, end_clip_id}
+//   POST /build-and-render {video_id, fps, beats[], audio_file_ids[], end_clip_id}
 // Drive reads use the Cloud Run service account (read-only ADC), like ax-render.
 import express from "express";
 import fs from "fs";
@@ -18,7 +18,6 @@ const ENTRY = path.join(ROOT, "src", "index.ts");
 const RENDER_API_KEY = process.env.RENDER_API_KEY || "PLACEHOLDER_KEY";
 const PORT = process.env.PORT || 8080;
 const BASE = `http://127.0.0.1:${PORT}`;
-const INTRO_SEC = Number(process.env.INTRO_SEC || 1.0); // silent thumbnail still
 const ASSETS = "/tmp/axassets";
 fs.mkdirSync(ASSETS, { recursive: true });
 
@@ -72,25 +71,19 @@ function parseBeat(b, i, fps, cursor) {
   return { beat: Number(b.beat) || i + 1, track: "card", component: String(b.card_id || "").trim(), props, startFrame: cursor, durationFrames };
 }
 
-async function assemble(video_id, fps, beats, audioIds, thumbId, endClipId) {
+async function assemble(video_id, fps, beats, audioIds, endClipId) {
   const safe = (video_id || "v").replace(/[^A-Za-z0-9_-]/g, "");
-  const INTRO = Math.max(0, Math.round(INTRO_SEC * fps));
   const timeline = [];
   const audio = [];
 
-  // intro thumbnail still (silent)
-  if (thumbId) {
-    const { name } = await driveDownload(thumbId, path.join(ASSETS, `${safe}_intro`));
-    timeline.push({ beat: 0, track: "image", src: `${BASE}/assets/${name}`, startFrame: 0, durationFrames: INTRO, props: {} });
-  }
-
-  // card beats (offset by the intro)
-  let cursor = INTRO;
+  // The video's first frame IS the Hook card (beat 1). The Agent-5 thumbnail is a
+  // separate poster used at publish time, NOT prepended here.
+  let cursor = 0;
   beats.forEach((b, i) => { const item = parseBeat(b, i, fps, cursor); timeline.push(item); cursor += item.durationFrames; });
   const cardsEnd = cursor;
 
-  // narration: chapter mp3s, gapless, starting when cards start
-  let acur = INTRO;
+  // narration: chapter mp3s, gapless, under the cards from frame 0
+  let acur = 0;
   for (let i = 0; i < (audioIds || []).length; i++) {
     const id = String(audioIds[i] || "").trim();
     if (!id) continue;
@@ -100,7 +93,7 @@ async function assemble(video_id, fps, beats, audioIds, thumbId, endClipId) {
     acur += df;
   }
 
-  // outro end clip (keeps its own audio), after the cards
+  // outro end clip (keeps its own audio), appended after the cards
   if (endClipId) {
     const { buf, name } = await driveDownload(endClipId, path.join(ASSETS, `${safe}_outro`));
     const df = Math.max(1, Math.round((await durationSec(buf)) * fps)) || fps * 3;
@@ -134,17 +127,16 @@ app.post("/render-video", async (req, res) => {
 
 app.post("/build-and-render", async (req, res) => {
   if (!ok(req)) return res.status(401).json({ error: "bad api key" });
-  const { video_id, fps = 30, beats, audio_file_ids = [], thumbnail_id = "", end_clip_id = "" } = req.body || {};
+  const { video_id, fps = 30, beats, audio_file_ids = [], end_clip_id = "" } = req.body || {};
   if (!Array.isArray(beats) || beats.length === 0) return res.status(400).json({ error: "need non-empty beats[]" });
   try {
     const F = Number(fps) || 30;
-    const manifest = await assemble(video_id, F, beats, audio_file_ids, String(thumbnail_id).trim(), String(end_clip_id).trim());
+    const manifest = await assemble(video_id, F, beats, audio_file_ids, String(end_clip_id).trim());
     const out = await renderManifest(manifest);
     return res.json({
       status: "ok",
       beats: manifest.timeline.filter((t) => t.track === "card").length,
       audio_tracks: manifest.audio.length,
-      has_intro: manifest.timeline.some((t) => t.track === "image"),
       has_outro: manifest.timeline.some((t) => t.track === "clip"),
       ...out,
     });
