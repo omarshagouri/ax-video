@@ -1,4 +1,4 @@
-# AmpCoreX render service for Cloud Run (Remotion + headless Chrome).
+# 
 FROM node:20-bookworm-slim
 
 # Chrome/Chromium runtime libs Remotion needs to render headlessly.
