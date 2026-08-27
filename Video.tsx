@@ -66,7 +66,11 @@ export const Video: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
           return (
             <Sequence key={key} from={item.startFrame} durationInFrames={item.durationFrames} name={`clip:${item.beat}`}>
               <AbsoluteFill style={{ backgroundColor: theme.navy }}>
-                <OffthreadVideo src={asset(item.src)} muted={(item as { muted?: boolean }).muted === true} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                <OffthreadVideo
+                  src={asset(item.src)}
+                  muted={(item as { muted?: boolean }).muted === true}
+                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                />
               </AbsoluteFill>
             </Sequence>
           );
