@@ -61,26 +61,132 @@ async function durationSec(buf) {
   try { return (await parseBuffer(buf)).format.duration || 0; } catch { return 0; }
 }
 
+// VV- = B-roll clip, VA- = animation. Both are non-card assets that need a real
+// video FILE. The beat can carry one as clip_url / values.CLIP_URL / values.SRC.
+const CLIP_RE = /^V[VA]-/i;
+
+// --- clips folder resolution (same convention as ax-render) ---
+// Every mid-roll B-roll clip is a .mp4 in the clips Drive folder, named by its id
+// (exact "VV-SF-016.mp4" preferred, else any .mp4 whose name CONTAINS the id).
+const CLIPS_FOLDER_ID = process.env.CLIPS_FOLDER_ID || "1ygVMe7TpyR8zFugivTvY6Lrkthah3owo";
+let _clipsIndex = null; // { NAME.MP4(upper): fileId }
+async function buildClipsIndex() {
+  const client = await getAuthClient();
+  const index = {};
+  let pageToken;
+  do {
+    const res = await client.request({
+      url: "https://www.googleapis.com/drive/v3/files",
+      params: {
+        q: `'${CLIPS_FOLDER_ID}' in parents and trashed = false`,
+        fields: "nextPageToken, files(id,name)",
+        pageSize: 1000, pageToken,
+        supportsAllDrives: true, includeItemsFromAllDrives: true,
+      },
+    });
+    for (const f of res.data.files || []) {
+      if (String(f.name).toLowerCase().endsWith(".mp4")) index[String(f.name).toUpperCase()] = f.id;
+    }
+    pageToken = res.data.nextPageToken;
+  } while (pageToken);
+  return index;
+}
+async function resolveClipFileId(clipId) {
+  const cid = String(clipId).toUpperCase();
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (!_clipsIndex || attempt === 1) _clipsIndex = await buildClipsIndex();
+    if (_clipsIndex[cid + ".MP4"]) return _clipsIndex[cid + ".MP4"];
+    for (const [name, fid] of Object.entries(_clipsIndex)) {
+      if (name.includes(cid)) return fid;
+    }
+  }
+  return null; // no match -> caller holds the previous card
+}
+
 function parseBeat(b, i, fps, cursor) {
   const durSec = parseFloat(String(b.duration)) || 3;
   const durationFrames = Math.max(1, Math.round(durSec * fps));
+  const beat = Number(b.beat) || i + 1;
+  const id = String(b.card_id || "").trim();
   let props = {};
   const v = b.values;
   if (typeof v === "string") { try { props = JSON.parse(v || "{}"); } catch { props = {}; } }
   else if (v && typeof v === "object") { props = v; }
-  return { beat: Number(b.beat) || i + 1, track: "card", component: String(b.card_id || "").trim(), props, startFrame: cursor, durationFrames };
+  return { beat, track: "card", component: id, props, startFrame: cursor, durationFrames };
+}
+
+// Merge consecutive beats that are the SAME render (same track/component/src/props
+// AND truly adjacent) into one span. This is the fix for a held card re-playing its
+// intro on every beat: one mount, one continuous clock -> intro once, then hold.
+function coalesce(timeline) {
+  const out = [];
+  for (const item of timeline) {
+    const prev = out[out.length - 1];
+    const same =
+      prev &&
+      prev.track === item.track &&
+      prev.component === item.component &&
+      (prev.src || "") === (item.src || "") &&
+      JSON.stringify(prev.props || {}) === JSON.stringify(item.props || {}) &&
+      prev.startFrame + prev.durationFrames === item.startFrame;
+    if (same) prev.durationFrames += item.durationFrames;
+    else out.push({ ...item });
+  }
+  return out;
 }
 
 async function assemble(video_id, fps, beats, audioIds, endClipId) {
   const safe = (video_id || "v").replace(/[^A-Za-z0-9_-]/g, "");
-  const timeline = [];
+  let timeline = [];
   const audio = [];
 
   // The video's first frame IS the Hook card (beat 1). The Agent-5 thumbnail is a
   // separate poster used at publish time, NOT prepended here.
+  // Build the beat timeline. Card beats parse directly; VV-/VA- clip beats resolve
+  // a real .mp4 from the clips folder by id (download + serve). If no clip file is
+  // found, HOLD the previous card across the beat instead of rendering blank.
   let cursor = 0;
-  beats.forEach((b, i) => { const item = parseBeat(b, i, fps, cursor); timeline.push(item); cursor += item.durationFrames; });
+  let resolvedClips = 0;
+  for (let i = 0; i < beats.length; i++) {
+    const b = beats[i];
+    const id = String(b.card_id || "").trim();
+    const durSec = parseFloat(String(b.duration)) || 3;
+    const durationFrames = Math.max(1, Math.round(durSec * fps));
+    const beatNo = Number(b.beat) || i + 1;
+
+    if (CLIP_RE.test(id)) {
+      let props = {};
+      const v = b.values;
+      if (typeof v === "string") { try { props = JSON.parse(v || "{}"); } catch { props = {}; } }
+      else if (v && typeof v === "object") { props = v; }
+      // explicit src on the beat wins; otherwise resolve by clip id from the folder
+      let src = b.clip_url || props.CLIP_URL || props.SRC || props.src || "";
+      if (!src) {
+        const fid = await resolveClipFileId(id); // returns null on no match
+        if (fid) {
+          const { name } = await driveDownload(fid, path.join(ASSETS, `${safe}_clip_${beatNo}`));
+          src = `${BASE}/assets/${name}`;
+        }
+      }
+      if (!src) {
+        // FAIL LOUD: a clip beat with no resolvable file is an error, not a silent hold.
+        throw new Error(`beat ${beatNo}: clip "${id}" has no .mp4 in clips folder ${CLIPS_FOLDER_ID} (and no clip_url/CLIP_URL on the beat)`);
+      }
+      timeline.push({ beat: beatNo, track: "clip", src, muted: true, props: {}, startFrame: cursor, durationFrames });
+      cursor += durationFrames; resolvedClips++;
+      continue; // a clip is not a "previous card" to hold
+    }
+
+    const item = parseBeat(b, i, fps, cursor);
+    timeline.push(item);
+    cursor += item.durationFrames;
+  }
   const cardsEnd = cursor;
+
+  // Merge held/repeated identical beats so a card mounts once (no re-fade).
+  const rawBeatCount = timeline.length;
+  timeline = coalesce(timeline);
+  const mergedBeatCount = timeline.length;
 
   // narration: chapter mp3s, gapless, under the cards from frame 0
   let acur = 0;
@@ -97,10 +203,10 @@ async function assemble(video_id, fps, beats, audioIds, endClipId) {
   if (endClipId) {
     const { buf, name } = await driveDownload(endClipId, path.join(ASSETS, `${safe}_outro`));
     const df = Math.max(1, Math.round((await durationSec(buf)) * fps)) || fps * 3;
-    timeline.push({ beat: 9999, track: "clip", src: `${BASE}/assets/${name}`, startFrame: cardsEnd, durationFrames: df, props: {} });
+    timeline.push({ beat: 9999, track: "clip", src: `${BASE}/assets/${name}`, startFrame: cardsEnd, durationFrames: df, props: {}, muted: false });
   }
 
-  return { video_id: video_id || "video", fps, width: 1080, height: 1920, timeline, audio, captions: [] };
+  return { video_id: video_id || "video", fps, width: 1080, height: 1920, timeline, audio, captions: [], _rawBeats: rawBeatCount, _mergedBeats: mergedBeatCount, _resolvedClips: resolvedClips };
 }
 
 async function renderManifest(manifest) {
@@ -135,7 +241,10 @@ app.post("/build-and-render", async (req, res) => {
     const out = await renderManifest(manifest);
     return res.json({
       status: "ok",
-      beats: manifest.timeline.filter((t) => t.track === "card").length,
+      raw_beats: manifest._rawBeats,          // beats received
+      merged_beats: manifest._mergedBeats,    // after coalescing repeats (should be <=)
+      resolved_clips: manifest._resolvedClips,
+      card_beats: manifest.timeline.filter((t) => t.track === "card").length,
       audio_tracks: manifest.audio.length,
       has_outro: manifest.timeline.some((t) => t.track === "clip"),
       ...out,
