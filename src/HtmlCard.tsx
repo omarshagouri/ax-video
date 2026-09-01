@@ -6,6 +6,7 @@ import {
 } from "remotion";
 import { z } from "zod";
 import { clamp, easeOutCubic } from "./lib/ease";
+import { heldSeconds, motionEndOf } from "./lib/held";
 import { theme } from "./theme";
 
 export type CardData = {
@@ -35,13 +36,24 @@ function substitute(s: string, values: Record<string, unknown>): string {
 export const HtmlCard: React.FC<{
   data: CardData;
   values: Record<string, unknown>;
-}> = ({ data, values }) => {
+  /** Length (frames) of the Sequence this card is rendered in. When a card is
+   *  held across several cells the server coalesces them, so this is longer than
+   *  the card's own animation and we stretch the entrance to fill it. */
+  holdFrames?: number;
+}> = ({ data, values, holdFrames }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const vkey = JSON.stringify(values);
 
   const css = useMemo(() => substitute(data.css, values), [data.css, vkey]);
   const body = useMemo(() => substitute(data.body, values), [data.body, vkey]);
+
+  // When the card's own entrance finishes (s). +0.3 margin so a late element is
+  // never clipped by the stretch. 0 = static card -> heldSeconds leaves it alone.
+  const motionEnd = useMemo(() => {
+    const e = motionEndOf(data.seek);
+    return e > 0 ? e + 0.3 : 0;
+  }, [data.seek]);
 
   const seekFn = useMemo(() => {
     const src = substitute(data.seek, values);
@@ -61,7 +73,7 @@ export const HtmlCard: React.FC<{
   // Mutate the DOM before paint so Remotion captures the right frame.
   useLayoutEffect(() => {
     try {
-      seekFn(frame / fps, clamp, easeOutCubic);
+      seekFn(heldSeconds(frame, fps, holdFrames ?? 0, motionEnd), clamp, easeOutCubic);
     } catch {
       /* keep rendering even if a card's seek throws on an edge frame */
     }
@@ -82,9 +94,18 @@ export const HtmlCard: React.FC<{
 export function makeHtmlCard(
   data: CardData
 ): React.FC<Record<string, unknown>> {
-  const Card: React.FC<Record<string, unknown>> = (props) => (
-    <HtmlCard data={data} values={props} />
-  );
+  const Card: React.FC<Record<string, unknown>> = (props) => {
+    // __holdFrames is injected by Video.tsx; keep it out of the slot values so it
+    // is never substituted into the card's body/seek.
+    const { __holdFrames, ...values } = props;
+    return (
+      <HtmlCard
+        data={data}
+        values={values}
+        holdFrames={typeof __holdFrames === "number" ? __holdFrames : undefined}
+      />
+    );
+  };
   return Card;
 }
 
