@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { theme } from "../theme";
 import { clamp, easeOutCubic } from "../lib/ease";
+import { heldSeconds } from "../lib/held";
 import { useFittedText } from "../lib/useFittedText";
 
 /**
@@ -17,10 +18,11 @@ export const VCSF003Schema = z.object({
 });
 export type VCSF003Props = z.infer<typeof VCSF003Schema>;
 
-export const VCSF003: React.FC<VCSF003Props> = ({ TAG, STATEMENT, ROLE }) => {
+export const VCSF003: React.FC<VCSF003Props & { __holdFrames?: number }> = ({ 
+  __holdFrames,TAG, STATEMENT, ROLE }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const t = frame / fps;
+  const t = heldSeconds(frame, fps, __holdFrames ?? 0, 2.0);
 
   const pe = easeOutCubic(clamp(t / 0.5));
   const se = easeOutCubic(clamp((t - 0.4) / 0.7));

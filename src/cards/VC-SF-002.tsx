@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { theme } from "../theme";
 import { clamp, easeOutCubic } from "../lib/ease";
+import { heldSeconds } from "../lib/held";
 
 /**
  * VC-SF-002 "Versus" - two numeric bars scaled to the larger value.
@@ -37,8 +38,9 @@ function toNumber(s: string | number): number {
 const MAX_BAR = 450;
 const BASE = 1000; // baseline from bottom
 
-export const VCSF002: React.FC<VCSF002Props> = ({
-  TITLE,
+export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
+  
+  __holdFrames,TITLE,
   VALUE_A,
   LABEL_A,
   VALUE_B,
@@ -47,7 +49,7 @@ export const VCSF002: React.FC<VCSF002Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const t = frame / fps;
+  const t = heldSeconds(frame, fps, __holdFrames ?? 0, 1.7);
 
   const a = toNumber(VALUE_A);
   const b = toNumber(VALUE_B);
