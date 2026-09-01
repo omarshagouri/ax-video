@@ -3,6 +3,7 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { theme } from "../theme";
 import { clamp, easeOutCubic } from "../lib/ease";
+import { heldSeconds } from "../lib/held";
 import { useFittedText } from "../lib/useFittedText";
 
 /**
@@ -26,8 +27,9 @@ export type VCSF011Props = z.infer<typeof VCSF011Schema>;
 
 const isFilled = (v?: string) => !!v && v.trim().length > 0 && v.indexOf("__") < 0;
 
-export const VCSF011: React.FC<VCSF011Props> = ({
-  HEADER,
+export const VCSF011: React.FC<VCSF011Props & { __holdFrames?: number }> = ({
+  
+  __holdFrames,HEADER,
   ITEM1,
   ITEM2,
   ITEM3,
@@ -36,7 +38,7 @@ export const VCSF011: React.FC<VCSF011Props> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const t = frame / fps;
+  const t = heldSeconds(frame, fps, __holdFrames ?? 0, 3.0);
 
   const items = [ITEM1, ITEM2, ITEM3, ITEM4];
   const filled = items
