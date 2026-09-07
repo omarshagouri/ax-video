@@ -5,9 +5,6 @@ import { allCards } from "./cards/generated/allCards";
 
 // Native, hand-ported cards (type-safe, the "target" form).
 import { VCSF004, VCSF004Schema } from "./cards/VC-SF-004";
-import { VCSF003, VCSF003Schema } from "./cards/VC-SF-003";
-import { VCSF002, VCSF002Schema } from "./cards/VC-SF-002";
-import { VCSF011, VCSF011Schema } from "./cards/VC-SF-011";
 
 export type CardEntry = {
   component: React.FC<any>;
@@ -19,9 +16,6 @@ export type CardEntry = {
 // (original css/body/seek, verbatim). All 29 cards are available on day one.
 const native: Record<string, CardEntry> = {
   "VC-SF-004": { component: VCSF004, schema: VCSF004Schema, native: true },
-  "VC-SF-003": { component: VCSF003, schema: VCSF003Schema, native: true },
-  "VC-SF-002": { component: VCSF002, schema: VCSF002Schema, native: true },
-  "VC-SF-011": { component: VCSF011, schema: VCSF011Schema, native: true },
 };
 
 export const registry: Record<string, CardEntry> = { ...native };
