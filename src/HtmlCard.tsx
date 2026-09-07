@@ -6,7 +6,6 @@ import {
 } from "remotion";
 import { z } from "zod";
 import { clamp, easeOutCubic } from "./lib/ease";
-import { heldSeconds, motionEndOf } from "./lib/held";
 import { theme } from "./theme";
 
 export type CardData = {
@@ -48,19 +47,14 @@ export const HtmlCard: React.FC<{
   const css = useMemo(() => substitute(data.css, values), [data.css, vkey]);
   const body = useMemo(() => substitute(data.body, values), [data.body, vkey]);
 
-  // When the card's own entrance finishes (s). +0.3 margin so a late element is
-  // never clipped by the stretch. 0 = static card -> heldSeconds leaves it alone.
-  const motionEnd = useMemo(() => {
-    const e = motionEndOf(data.seek);
-    return e > 0 ? e + 0.3 : 0;
-  }, [data.seek]);
 
   const seekFn = useMemo(() => {
     const src = substitute(data.seek, values);
     try {
       // eslint-disable-next-line no-new-func
-      return new Function("t", "clamp", "easeOutCubic", src) as (
+      return new Function("t", "x", "clamp", "easeOutCubic", src) as (
         t: number,
+        x: number,
         c: typeof clamp,
         e: typeof easeOutCubic
       ) => void;
@@ -73,7 +67,8 @@ export const HtmlCard: React.FC<{
   // Mutate the DOM before paint so Remotion captures the right frame.
   useLayoutEffect(() => {
     try {
-      seekFn(heldSeconds(frame, fps, holdFrames ?? 0, motionEnd), clamp, easeOutCubic);
+      const durSec = holdFrames && holdFrames > 0 ? holdFrames / fps : data.default_duration;
+      seekFn(frame / fps, durSec, clamp, easeOutCubic);
     } catch {
       /* keep rendering even if a card's seek throws on an edge frame */
     }
