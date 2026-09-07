@@ -49,7 +49,7 @@ export const Video: React.FC<{ manifest: VideoManifest }> = ({ manifest }) => {
         const Card = entry.component;
         return (
           <Sequence key={key} from={item.startFrame} durationInFrames={item.durationFrames} name={`${item.beat}: ${item.component}`}>
-            <Card {...item.props} />
+            <Card {...item.props} __holdFrames={item.durationFrames} />
           </Sequence>
         );
       })}
