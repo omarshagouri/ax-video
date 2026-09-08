@@ -3,13 +3,10 @@ import { AbsoluteFill, useCurrentFrame, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { theme } from "../theme";
 import { clamp, easeOutCubic } from "../lib/ease";
-import { heldSeconds } from "../lib/held";
 
 /**
  * VC-SF-002 "Versus" - two numeric bars scaled to the larger value.
- * Robust rewrite: parses $/B/M/K/% and normalises units so bars always draw;
- * fixed, predictable type sizes (no fragile auto-fit); labels sit centred under
- * their own bar so they never overlap.
+ * Staggered entrance matching standard template timings, ending with a 1.0s hold.
  */
 export const VCSF002Schema = z.object({
   TITLE: z.string(),
@@ -38,9 +35,8 @@ function toNumber(s: string | number): number {
 const MAX_BAR = 450;
 const BASE = 1000; // baseline from bottom
 
-export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
-  
-  __holdFrames,TITLE,
+export const VCSF002: React.FC<VCSF002Props> = ({
+  TITLE,
   VALUE_A,
   LABEL_A,
   VALUE_B,
@@ -48,19 +44,30 @@ export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
   SOURCE,
 }) => {
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const t = heldSeconds(frame, fps, __holdFrames ?? 0, 1.7);
+  const { fps, durationInFrames } = useVideoConfig();
+
+  // 1. Establish the timeline: Total video duration minus exactly 1 second for the final hold
+  const totalSec = durationInFrames / fps;
+  const animEnd = Math.max(1, totalSec - 1.0);
+  
+  // 2. Lock the current time once it hits the hold period
+  const t = Math.min(frame / fps, animEnd);
+  
+  // 3. Normalize progress (0 to 1) over the active animation window
+  const p = t / animEnd;
+
+  // 4. Stagger the entrances sequentially over the normalized progress window
+  const te = easeOutCubic(clamp((p - 0.05) / 0.2)); // Title fades in first
+  const fe = easeOutCubic(clamp((p - 0.2)  / 0.2)); // Baseline & Column Labels appear
+  const ge = easeOutCubic(clamp((p - 0.3)  / 0.4)); // Bars grow
+  const ve = easeOutCubic(clamp((p - 0.6)  / 0.2)); // Values appear above bars
+  const se = easeOutCubic(clamp((p - 0.8)  / 0.2)); // Source fades in last
 
   const a = toNumber(VALUE_A);
   const b = toNumber(VALUE_B);
   const maxV = Math.max(a || 0, b || 0, 0.0001);
   const hA = Number.isFinite(a) ? (MAX_BAR * a) / maxV : 40;
   const hB = Number.isFinite(b) ? (MAX_BAR * b) / maxV : 40;
-
-  const te = easeOutCubic(clamp(t / 0.6));
-  const fe = clamp((t - 0.4) / 0.5);
-  const ge = easeOutCubic(clamp((t - 0.5) / 0.8));
-  const ve = easeOutCubic(clamp((t - 1.3) / 0.4));
 
   // bar A centred at x=400, bar B centred at x=700 (width 200 each)
   const bar = (leftCenter: number, h: number, color: string): React.CSSProperties => ({
@@ -101,6 +108,7 @@ export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
     fontSize: 32,
     lineHeight: 1.2,
     opacity: fe,
+    transform: `translateY(${10 * (1 - fe)}px)`,
   });
 
   return (
@@ -141,6 +149,7 @@ export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
           width: 600,
           height: 3,
           background: "#3A4A5E",
+          opacity: fe,
         }}
       />
 
@@ -157,16 +166,17 @@ export const VCSF002: React.FC<VCSF002Props & { __holdFrames?: number }> = ({
         <div
           style={{
             position: "absolute",
-            bottom: 760,
+            bottom: 600,
             left: 90,
             maxWidth: 900,
             color: "#8CA0B8",
             fontFamily: theme.font,
             fontSize: 28,
             fontWeight: 400,
-            opacity: fe,
+            opacity: se,
             borderLeft: `6px solid ${theme.teal}`,
             paddingLeft: 16,
+            transform: `translateY(${10 * (1 - se)}px)`,
           }}
         >
           {SOURCE}
