@@ -6,27 +6,24 @@ import { Video } from "./Video";
 import { sampleManifest } from "./sample-manifest";
 import { totalFrames, VideoManifest } from "./manifest";
 import { LongFormChapter } from "./longform/LongFormChapter";
-import { ax002OpeningManifest } from "./longform/sample-ax002-opening";
+import { openingManifest } from "./longform/sample-opening";
 import { LFChapterManifest, totalLongFormFrames } from "./longform/types";
 
-// Existing Shorts font load.
 const { waitUntilDone: waitSpaceGrotesk } = loadSpaceGrotesk("normal", {
   weights: ["500", "600", "700"],
 });
 
-// Long-form cards deliberately use Inter for support text.
 const { waitUntilDone: waitInter } = loadInter("normal", {
   weights: ["400", "500", "600", "700"],
 });
 
-const waitForBrandFonts = async () => {
+const waitForFonts = async () => {
   await Promise.all([waitSpaceGrotesk(), waitInter()]);
 };
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
-      {/* Existing Shorts composition. Do not change its ID or behavior. */}
       <Composition
         id="AmpCoreX"
         component={Video}
@@ -36,7 +33,7 @@ export const RemotionRoot: React.FC = () => {
         durationInFrames={totalFrames(sampleManifest)}
         defaultProps={{ manifest: sampleManifest }}
         calculateMetadata={async ({ props }) => {
-          await waitForBrandFonts();
+          await waitForFonts();
           const m = props.manifest as VideoManifest;
           return {
             durationInFrames: totalFrames(m),
@@ -47,17 +44,16 @@ export const RemotionRoot: React.FC = () => {
         }}
       />
 
-      {/* Isolated 16:9 long-form chapter composition. */}
       <Composition
         id="AmpCoreXLongFormChapter"
         component={LongFormChapter}
-        fps={ax002OpeningManifest.fps}
-        width={ax002OpeningManifest.width}
-        height={ax002OpeningManifest.height}
-        durationInFrames={totalLongFormFrames(ax002OpeningManifest)}
-        defaultProps={{ manifest: ax002OpeningManifest }}
+        fps={openingManifest.fps}
+        width={openingManifest.width}
+        height={openingManifest.height}
+        durationInFrames={totalLongFormFrames(openingManifest)}
+        defaultProps={{ manifest: openingManifest }}
         calculateMetadata={async ({ props }) => {
-          await waitForBrandFonts();
+          await waitForFonts();
           const m = props.manifest as LFChapterManifest;
           return {
             durationInFrames: totalLongFormFrames(m),
