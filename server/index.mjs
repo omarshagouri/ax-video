@@ -1,7 +1,8 @@
 // AmpCoreX assembly + render service (Cloud Run). ONE pass produces the finished
 // video: Hook card + card beats + narration -> end clip (own audio). No intro still.
-//   POST /render-video     {manifest}
-//   POST /build-and-render {video_id, fps, beats[], audio_file_ids[], end_clip_id}
+//   POST /render-video             {manifest}  // existing Shorts path
+//   POST /build-and-render         {video_id, fps, beats[], audio_file_ids[], end_clip_id}
+//   POST /render-longform-chapter  {manifest, audio_file_id?} // isolated 16:9 LF chapter
 // Drive reads use the Cloud Run service account (read-only ADC), like ax-render.
 import express from "express";
 import fs from "fs";
@@ -209,14 +210,60 @@ async function assemble(video_id, fps, beats, audioIds, endClipId) {
   return { video_id: video_id || "video", fps, width: 1080, height: 1920, timeline, audio, captions: [], _rawBeats: rawBeatCount, _mergedBeats: mergedBeatCount, _resolvedClips: resolvedClips };
 }
 
-async function renderManifest(manifest) {
+async function renderComposition(manifest, compositionId, filename) {
   const serveUrl = await getServeUrl();
-  const out = path.join("/tmp", `${manifest.video_id || "video"}_FINAL.mp4`);
-  const composition = await selectComposition({ serveUrl, id: "AmpCoreX", inputProps: { manifest } });
-  await renderMedia({ composition, serveUrl, codec: "h264", outputLocation: out, inputProps: { manifest } });
+  const out = path.join("/tmp", filename);
+  const composition = await selectComposition({
+    serveUrl,
+    id: compositionId,
+    inputProps: { manifest },
+  });
+  await renderMedia({
+    composition,
+    serveUrl,
+    codec: "h264",
+    outputLocation: out,
+    inputProps: { manifest },
+  });
   const b64 = fs.readFileSync(out).toString("base64");
   fs.unlinkSync(out);
-  return { filename: `${manifest.video_id || "video"}_FINAL.mp4`, file_base64: b64 };
+  return { filename, file_base64: b64 };
+}
+
+async function renderManifest(manifest) {
+  return renderComposition(
+    manifest,
+    "AmpCoreX",
+    `${manifest.video_id || "video"}_FINAL.mp4`
+  );
+}
+
+async function prepareLongFormManifest(manifest, audioFileId = "") {
+  const m = { ...manifest };
+
+  // Long-form is deliberately chapter-based and 16:9.
+  if (Number(m.width) !== 1920 || Number(m.height) !== 1080) {
+    throw new Error("long-form chapter must be 1920x1080");
+  }
+  if (!Array.isArray(m.timeline) || m.timeline.length === 0) {
+    throw new Error("long-form chapter needs non-empty manifest.timeline[]");
+  }
+
+  // Production Make flow can pass the approved chapter audio as a Drive file ID.
+  // The thumbnail is NOT prepended here, and the common end clip is NOT appended
+  // here. Both stay separate from chapter review/rendering.
+  const fid = String(audioFileId || "").trim();
+  if (fid) {
+    const safe = String(m.video_id || "lf").replace(/[^A-Za-z0-9_-]/g, "");
+    const chapter = Number(m.chapter) || 1;
+    const { name } = await driveDownload(
+      fid,
+      path.join(ASSETS, `${safe}_lf_ch${chapter}_audio`)
+    );
+    m.audio_src = `${BASE}/assets/${name}`;
+  }
+
+  return m;
 }
 
 const ok = (req) => req.headers["x-api-key"] === RENDER_API_KEY;
@@ -250,6 +297,45 @@ app.post("/build-and-render", async (req, res) => {
       ...out,
     });
   } catch (e) { console.error(e); return res.status(500).json({ error: String(e?.stack || e) }); }
+});
+
+
+app.post("/render-longform-chapter", async (req, res) => {
+  if (!ok(req)) return res.status(401).json({ error: "bad api key" });
+
+  const body = req.body || {};
+  const rawManifest = body.manifest ?? body;
+  const audioFileId = body.audio_file_id || "";
+
+  try {
+    const manifest = await prepareLongFormManifest(rawManifest, audioFileId);
+    const chapter = Number(manifest.chapter) || 1;
+    const safe = String(manifest.video_id || "longform").replace(/[^A-Za-z0-9_-]/g, "");
+    const filename = `${safe}_CH${String(chapter).padStart(2, "0")}_REVIEW.mp4`;
+
+    const out = await renderComposition(
+      manifest,
+      "AmpCoreXLongFormChapter",
+      filename
+    );
+
+    return res.json({
+      status: "ok",
+      mode: "longform_chapter_review",
+      video_id: manifest.video_id,
+      chapter,
+      chapter_title: manifest.chapter_title || "",
+      width: manifest.width,
+      height: manifest.height,
+      fps: manifest.fps,
+      has_audio: Boolean(manifest.audio_src),
+      end_clip_appended: false,
+      ...out,
+    });
+  } catch (e) {
+    console.error(e);
+    return res.status(500).json({ error: String(e?.stack || e) });
+  }
 });
 
 app.listen(PORT, () => console.log(`ax-video-render listening on ${PORT}`));
