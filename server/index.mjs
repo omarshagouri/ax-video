@@ -1,9 +1,3 @@
-// AmpCoreX assembly + render service (Cloud Run). ONE pass produces the finished
-// video: Hook card + card beats + narration -> end clip (own audio). No intro still.
-//   POST /render-video             {manifest}  // existing Shorts path
-//   POST /build-and-render         {video_id, fps, beats[], audio_file_ids[], end_clip_id}
-//   POST /render-longform-chapter  {manifest, audio_file_id?} // isolated 16:9 LF chapter
-// Drive reads use the Cloud Run service account (read-only ADC), like ax-render.
 import express from "express";
 import fs from "fs";
 import path from "path";
@@ -241,7 +235,6 @@ async function renderManifest(manifest) {
 async function prepareLongFormManifest(manifest, audioFileId = "") {
   const m = { ...manifest };
 
-  // Long-form is deliberately chapter-based and 16:9.
   if (Number(m.width) !== 1920 || Number(m.height) !== 1080) {
     throw new Error("long-form chapter must be 1920x1080");
   }
@@ -249,9 +242,6 @@ async function prepareLongFormManifest(manifest, audioFileId = "") {
     throw new Error("long-form chapter needs non-empty manifest.timeline[]");
   }
 
-  // Production Make flow can pass the approved chapter audio as a Drive file ID.
-  // The thumbnail is NOT prepended here, and the common end clip is NOT appended
-  // here. Both stay separate from chapter review/rendering.
   const fid = String(audioFileId || "").trim();
   if (fid) {
     const safe = String(m.video_id || "lf").replace(/[^A-Za-z0-9_-]/g, "");
