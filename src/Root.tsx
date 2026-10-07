@@ -7,6 +7,7 @@ import { sampleManifest } from "./sample-manifest";
 import { totalFrames, VideoManifest } from "./manifest";
 import { LongFormChapter } from "./longform/LongFormChapter";
 import { openingManifest } from "./longform/sample-opening";
+import { animationLibrarySample } from "./longform/sample-animations";
 import { LFChapterManifest, totalLongFormFrames } from "./longform/types";
 
 const { waitUntilDone: waitSpaceGrotesk } = loadSpaceGrotesk("normal", {
@@ -52,6 +53,26 @@ export const RemotionRoot: React.FC = () => {
         height={openingManifest.height}
         durationInFrames={totalLongFormFrames(openingManifest)}
         defaultProps={{ manifest: openingManifest }}
+        calculateMetadata={async ({ props }) => {
+          await waitForFonts();
+          const m = props.manifest as LFChapterManifest;
+          return {
+            durationInFrames: totalLongFormFrames(m),
+            fps: m.fps,
+            width: m.width,
+            height: m.height,
+          };
+        }}
+      />
+
+      <Composition
+        id="AmpCoreXLongFormAnimationLibrary"
+        component={LongFormChapter}
+        fps={animationLibrarySample.fps}
+        width={animationLibrarySample.width}
+        height={animationLibrarySample.height}
+        durationInFrames={totalLongFormFrames(animationLibrarySample)}
+        defaultProps={{ manifest: animationLibrarySample }}
         calculateMetadata={async ({ props }) => {
           await waitForFonts();
           const m = props.manifest as LFChapterManifest;
