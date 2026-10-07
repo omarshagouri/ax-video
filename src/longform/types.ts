@@ -29,6 +29,8 @@ const versusPropsSchema = z.object({
   source: z.string().optional(),
 });
 
+const animationPropsSchema = z.record(z.any());
+
 export const lfSceneSchema = z.discriminatedUnion("type", [
   z.object({
     id: z.string(),
@@ -50,6 +52,14 @@ export const lfSceneSchema = z.discriminatedUnion("type", [
     startFrame: z.number().int().nonnegative(),
     durationFrames: z.number().int().positive(),
     props: versusPropsSchema,
+  }),
+  z.object({
+    id: z.string(),
+    type: z.literal("animation"),
+    component: z.string().regex(/^VA-LF-\d{3}$/),
+    startFrame: z.number().int().nonnegative(),
+    durationFrames: z.number().int().positive(),
+    props: animationPropsSchema.default({}),
   }),
 ]);
 
@@ -83,9 +93,7 @@ export function buildLongFormChapter(
   const timeline = input.scenes.map((scene) => {
     const durationFrames = Math.max(1, Math.round(scene.durationSec * input.fps));
     const built = {
-      id: scene.id,
-      type: scene.type,
-      props: scene.props,
+      ...scene,
       startFrame: cursor,
       durationFrames,
     } as LFScene;
