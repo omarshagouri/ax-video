@@ -1,0 +1,42 @@
+name: QA Short Form visual library
+
+on:
+  push:
+    branches: [sf-visual-library-v2]
+    paths:
+      - "src/animations.tsx"
+      - "src/registry.ts"
+      - "src/cards/generated/allCards.ts"
+      - "server/index.mjs"
+      - "scripts/qa_sf_animations.mjs"
+      - "scripts/qa_sf_cards.mjs"
+      - ".github/workflows/qa-sf-visual-library.yml"
+  workflow_dispatch:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Render Short Form cards
+        run: node scripts/qa_sf_cards.mjs
+      - name: Render Short Form animations
+        run: node scripts/qa_sf_animations.mjs
+      - name: Upload QA renders
+        uses: actions/upload-artifact@v4
+        with:
+          name: sf-visual-library-v2
+          path: |
+            qa-sf-cards
+            qa-sf-animations
+          retention-days: 7
+      - name: Build production container
+        run: docker build -t sf-visual-library-v2 .
