@@ -1,4 +1,4 @@
-// AmpCoreX brand tokens. Single place to keep colours/fonts consistent.
+// Shared visual brand tokens.
 export const theme = {
   navy: "#0A1628",
   teal: "#00D4AA",
