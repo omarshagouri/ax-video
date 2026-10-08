@@ -1,7 +1,7 @@
 name: Public identifier scan
 on:
   push:
-    branches: [sf-visual-library-v2]
+    branches: [main, sf-visual-library-v2]
   workflow_dispatch:
 jobs:
   scan:
