@@ -24,7 +24,7 @@ over the HtmlCard version automatically).
 
 ## Regenerate the card data (after editing ax-cards)
 ```bash
-git clone --depth 1 https://github.com/omarshagouri/ax-cards.git /tmp/ax-cards
+git clone --depth 1 "$AX_CARDS_REPO" /tmp/ax-cards
 python3 scripts/extract_cards.py /tmp/ax-cards/Cards
 ```
 
