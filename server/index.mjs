@@ -56,9 +56,8 @@ async function durationSec(buf) {
   try { return (await parseBuffer(buf)).format.duration || 0; } catch { return 0; }
 }
 
-// VV- = B-roll clip, VA- = animation. Both are non-card assets that need a real
-// video FILE. The beat can carry one as clip_url / values.CLIP_URL / values.SRC.
-const CLIP_RE = /^V[VA]-/i;
+// VV-SF-* are Drive-backed B-roll clips. VA-SF-* are native Remotion animations.
+const CLIP_RE = /^VV-SF-/i;
 
 // --- clips folder resolution (same convention as ax-render) ---
 // Every mid-roll B-roll clip is a .mp4 in the clips Drive folder, named by its id
@@ -173,6 +172,18 @@ async function assemble(video_id, fps, beats, audioIds, endClipId) {
     }
 
     const item = parseBeat(b, i, fps, cursor);
+
+    // Optional per-animation background image from Drive.
+    // Visual Plan can pass values.backgroundFileId; the renderer downloads it once
+    // and rewrites it to a local served URL for the native VA-SF component.
+    if (/^VA-SF-/i.test(item.component) && item.props && item.props.backgroundFileId) {
+      const bgId = String(item.props.backgroundFileId || "").trim();
+      if (bgId) {
+        const { name } = await driveDownload(bgId, path.join(ASSETS, `${safe}_bg_${beatNo}`));
+        item.props = { ...item.props, backgroundSrc: `${BASE}/assets/${name}` };
+      }
+    }
+
     timeline.push(item);
     cursor += item.durationFrames;
   }
@@ -227,7 +238,7 @@ async function renderComposition(manifest, compositionId, filename) {
 async function renderManifest(manifest) {
   return renderComposition(
     manifest,
-    "AmpCoreX",
+    "AXVideo",
     `${manifest.video_id || "video"}_FINAL.mp4`
   );
 }
@@ -305,7 +316,7 @@ app.post("/render-longform-chapter", async (req, res) => {
 
     const out = await renderComposition(
       manifest,
-      "AmpCoreXLongFormChapter",
+      "AXLongFormChapter",
       filename
     );
 

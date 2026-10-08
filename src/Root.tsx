@@ -25,7 +25,7 @@ export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
-        id="AmpCoreX"
+        id="AXVideo"
         component={Video}
         fps={sampleManifest.fps}
         width={sampleManifest.width}
@@ -45,7 +45,7 @@ export const RemotionRoot: React.FC = () => {
       />
 
       <Composition
-        id="AmpCoreXLongFormChapter"
+        id="AXLongFormChapter"
         component={LongFormChapter}
         fps={openingManifest.fps}
         width={openingManifest.width}

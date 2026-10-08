@@ -1,0 +1,50 @@
+name: Sync Short Form card registry
+
+on:
+  push:
+    branches: [main, sf-visual-library-v2]
+    paths:
+      - ".github/workflows/sync-sf-cards.yml"
+      - "scripts/extract_cards.py"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Fetch cleaned card source
+        run: |
+          rm -rf /tmp/ax-cards
+          git clone --depth 1 "${{ github.server_url }}/${{ github.repository_owner }}/ax-cards.git" /tmp/ax-cards
+      - name: Regenerate renderer card registry
+        run: python3 scripts/extract_cards.py /tmp/ax-cards/Cards
+      - name: Verify sequential library
+        run: |
+          python3 - <<'PY'
+          import re, pathlib
+          s=pathlib.Path("src/cards/generated/allCards.ts").read_text()
+          ids=sorted(set(re.findall(r'VC-SF-\d{3}',s)))
+          expected=[f"VC-SF-{i:03d}" for i in range(1,19)]
+          assert ids==expected, (ids, expected)
+          print("Verified",len(ids),"Short Form cards")
+          PY
+      - name: Commit generated registry
+        run: |
+          git config user.name "AX automation"
+          git config user.email "automation@users.noreply.github.com"
+          git add src/cards/generated/allCards.ts
+          if git diff --cached --quiet; then
+            echo "Registry already current."
+          else
+            git commit -m "Regenerate cleaned Short Form card registry"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi

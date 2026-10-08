@@ -5,7 +5,7 @@
   "description": "Remotion video rendering service.",
   "scripts": {
     "studio": "remotion studio",
-    "render": "remotion render AmpCoreX out/video.mp4",
+    "render": "remotion render AXVideo out/video.mp4",
     "typecheck": "tsc --noEmit",
     "server": "node server/index.mjs"
   },

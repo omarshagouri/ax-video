@@ -2,6 +2,7 @@ import React from "react";
 import { z } from "zod";
 import { makeHtmlCard, schemaFromSlots } from "./HtmlCard";
 import { allCards } from "./cards/generated/allCards";
+import { animationRegistry } from "./animations";
 
 // Native, hand-ported cards (type-safe, the "target" form).
 import { VCSF004, VCSF004Schema } from "./cards/VC-SF-004";
@@ -18,7 +19,7 @@ const native: Record<string, CardEntry> = {
   "VC-SF-004": { component: VCSF004, schema: VCSF004Schema, native: true },
 };
 
-export const registry: Record<string, CardEntry> = { ...native };
+export const registry: Record<string, CardEntry> = { ...animationRegistry, ...native };
 for (const id of Object.keys(allCards)) {
   if (registry[id]) continue; // native wins
   const data = allCards[id];
@@ -51,5 +52,7 @@ export function validateTimeline(
   return errors;
 }
 
-/** Handy for tooling / the new Agent 6: list of every renderable card id. */
-export const availableCards = () => Object.keys(registry).sort();
+/** Handy for tooling / visual agents. */
+export const availableCards = () => Object.keys(registry).filter((id) => id.startsWith("VC-SF-")).sort();
+export const availableAnimations = () => Object.keys(registry).filter((id) => id.startsWith("VA-SF-")).sort();
+export const availableVisuals = () => Object.keys(registry).sort();

@@ -9,7 +9,7 @@
 
 set -euo pipefail
 
-AXCARDS_URL="https://github.com/omarshagouri/ax-cards.git"
+AXCARDS_URL="${AXCARDS_URL:?Set AXCARDS_URL to the card-source repository URL}"
 AXCARDS_DIR="/tmp/ax-cards"
 
 # Always operate on the tree this script lives in (kills the nested-clone coin-flip).
@@ -19,8 +19,8 @@ cd "$AXVIDEO_DIR"
 echo "== ax-video root: $AXVIDEO_DIR =="
 
 # make sure a commit won't fail on a fresh Cloud Shell
-git config user.email >/dev/null 2>&1 || git config user.email "omarshagouri@gmail.com"
-git config user.name  >/dev/null 2>&1 || git config user.name  "Omar Shagouri"
+git config user.email >/dev/null 2>&1 || git config user.email "automation@users.noreply.github.com"
+git config user.name  >/dev/null 2>&1 || git config user.name  "AX automation"
 
 # 1. Pull the latest card source from GitHub (/tmp is wiped between sessions, so clone fresh)
 echo "== [1/4] cloning ax-cards =="
