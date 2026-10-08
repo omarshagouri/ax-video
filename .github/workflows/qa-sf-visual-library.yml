@@ -2,7 +2,7 @@ name: QA Short Form visual library
 
 on:
   push:
-    branches: [sf-visual-library-v2]
+    branches: [main, sf-visual-library-v2]
     paths:
       - "src/animations.tsx"
       - "src/registry.ts"
