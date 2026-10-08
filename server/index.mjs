@@ -238,7 +238,7 @@ async function renderComposition(manifest, compositionId, filename) {
 async function renderManifest(manifest) {
   return renderComposition(
     manifest,
-    "AmpCoreX",
+    "AXVideo",
     `${manifest.video_id || "video"}_FINAL.mp4`
   );
 }
@@ -316,7 +316,7 @@ app.post("/render-longform-chapter", async (req, res) => {
 
     const out = await renderComposition(
       manifest,
-      "AmpCoreXLongFormChapter",
+      "AXLongFormChapter",
       filename
     );
 
