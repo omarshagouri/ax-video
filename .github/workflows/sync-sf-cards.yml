@@ -33,7 +33,8 @@ jobs:
           import re, pathlib
           s=pathlib.Path("src/cards/generated/allCards.ts").read_text()
           ids=sorted(set(re.findall(r'VC-SF-\d{3}',s)))
-          expected=[f"VC-SF-{i:03d}" for i in range(1,19)]
+          expected=[f"VC-SF-{i:03d}" for i in range(1,19) if i != 16]
+          assert "VC-SF-016" not in ids, "permanently retired card was regenerated"
           assert ids==expected, (ids, expected)
           print("Verified",len(ids),"Short Form cards")
           PY
