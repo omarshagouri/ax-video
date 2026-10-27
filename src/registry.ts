@@ -19,8 +19,12 @@ const native: Record<string, CardEntry> = {
   "VC-SF-004": { component: VCSF004, schema: VCSF004Schema, native: true },
 };
 
+/** Permanently removed AmpCoreX card; never advertise or render, even from stale generated data. */
+export const bannedVisualIds = new Set(["VC-SF-016"]);
+
 export const registry: Record<string, CardEntry> = { ...animationRegistry, ...native };
 for (const id of Object.keys(allCards)) {
+  if (bannedVisualIds.has(id)) continue;
   if (registry[id]) continue; // native wins
   const data = allCards[id];
   registry[id] = {
@@ -35,6 +39,10 @@ export function validateTimeline(
 ): string[] {
   const errors: string[] = [];
   for (const item of timeline) {
+    if (bannedVisualIds.has(item.component)) {
+      errors.push(`beat ${item.beat}: retired AmpCoreX card "${item.component}" is permanently prohibited`);
+      continue;
+    }
     const entry = registry[item.component];
     if (!entry) {
       errors.push(`beat ${item.beat}: unknown card "${item.component}"`);
