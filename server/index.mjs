@@ -102,6 +102,7 @@ function parseBeat(b, i, fps, cursor) {
   const durationFrames = Math.max(1, Math.round(durSec * fps));
   const beat = Number(b.beat) || i + 1;
   const id = String(b.card_id || "").trim();
+  if (id === "VC-SF-016") throw new Error("AmpCoreX card VC-SF-016 was permanently retired and cannot be used.");
   let props = {};
   const v = b.values;
   if (typeof v === "string") { try { props = JSON.parse(v || "{}"); } catch { props = {}; } }
@@ -144,6 +145,7 @@ async function assemble(video_id, fps, beats, audioIds, endClipId) {
   for (let i = 0; i < beats.length; i++) {
     const b = beats[i];
     const id = String(b.card_id || "").trim();
+  if (id === "VC-SF-016") throw new Error("AmpCoreX card VC-SF-016 was permanently retired and cannot be used.");
     const durSec = parseFloat(String(b.duration)) || 3;
     const durationFrames = Math.max(1, Math.round(durSec * fps));
     const beatNo = Number(b.beat) || i + 1;

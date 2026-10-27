@@ -26,7 +26,6 @@ const cases=[
 ["VC-SF-013",4.5,{STEP1:"Collect",STEP2:"Diagnose",STEP3:"Recover",STEP4:"Reuse"}],
 ["VC-SF-014",4.5,{ITEM1:"Temperature",ITEM2:"State of charge",ITEM3:"Charge rate",ITEM4:"Calendar time"}],
 ["VC-SF-015",4.5,{QUOTE_TEXT:"Battery aging depends on both time and operating conditions.",SOURCE_NAME:"TEST SOURCE"}],
-["VC-SF-016",3,{TAG_TEXT:"CHAPTER 1"}],
 ["VC-SF-017",4.5,{TITLE:"Range vs temperature",C1_LABEL:"25°C",C1_VALUE:"100",C2_LABEL:"0°C",C2_VALUE:"80",C3_LABEL:"−10°C",C3_VALUE:"70",SOURCE:"TEST SOURCE"}],
 ["VC-SF-018",5,{SERIES:"BATTERY INTELLIGENCE",HEADLINE:"LFP VS NMC",SUBHEAD:"The trade-off hiding behind the dashboard"}]
 ];
