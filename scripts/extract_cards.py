@@ -10,6 +10,8 @@ for path in sorted(glob.glob(os.path.join(src_dir, "VC-SF-*.py"))):
     stem = os.path.basename(path)[:-3]
     if stem == "VC-SF-016":
         raise SystemExit("VC-SF-016 has been permanently retired from AmpCoreX; delete this source card before regenerating.")
+    if stem == "VC-SF-028":
+        continue  # separate thumbnail card; not in the active 001-018 Shorts renderer library
     ns = {}
     exec(open(path).read(), ns)
     c = ns["CARD"]
