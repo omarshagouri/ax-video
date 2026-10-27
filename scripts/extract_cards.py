@@ -8,6 +8,8 @@ src_dir = sys.argv[1] if len(sys.argv) > 1 else "/tmp/ax-cards/Cards"
 cards = {}
 for path in sorted(glob.glob(os.path.join(src_dir, "VC-SF-*.py"))):
     stem = os.path.basename(path)[:-3]
+    if stem == "VC-SF-016":
+        raise SystemExit("VC-SF-016 has been permanently retired from AmpCoreX; delete this source card before regenerating.")
     ns = {}
     exec(open(path).read(), ns)
     c = ns["CARD"]
