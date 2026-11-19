@@ -1,0 +1,29 @@
+{
+  "name": "ax-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion video rendering service.",
+  "scripts": {
+    "studio": "remotion studio",
+    "render": "remotion render AXVideo out/video.mp4",
+    "typecheck": "tsc --noEmit",
+    "server": "node server/index.mjs"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.290",
+    "@remotion/cli": "4.0.290",
+    "@remotion/google-fonts": "4.0.290",
+    "@remotion/renderer": "4.0.290",
+    "express": "^5.2.1",
+    "google-auth-library": "^11.0.2",
+    "music-metadata": "^11.15.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.290",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.6.3"
+  }
+}

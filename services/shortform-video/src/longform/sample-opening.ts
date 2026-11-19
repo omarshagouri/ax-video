@@ -1,0 +1,104 @@
+import { buildLongFormChapter } from "./types";
+
+export const openingManifest = buildLongFormChapter({
+  video_id: "LF-CONTROL",
+  chapter: 1,
+  chapter_title: "Opening + Cycle-Life Gap",
+  fps: 30,
+  width: 1920,
+  height: 1080,
+  audio_src: "",
+  scenes: [
+    {
+      id: "hook-one-ev-two-chemistries",
+      type: "hook",
+      durationSec: 4.5,
+      props: {
+        eyebrow: "LFP VS NMC",
+        lines: ["ONE EV", "ONE MODEL", "TWO CHEMISTRIES"],
+        footer: "Same machine. Different battery underneath.",
+      },
+    },
+    {
+      id: "pattern-runs-backwards",
+      type: "beat",
+      durationSec: 4.0,
+      props: {
+        kicker: "THE PARADOX",
+        title: "A PATTERN RUNS BACKWARDS",
+        tone: "teal",
+      },
+    },
+    {
+      id: "longer-life-bigger-drop",
+      type: "versus",
+      durationSec: 6.5,
+      props: {
+        title: "The dashboard can tell the opposite story",
+        left: {
+          label: "Longer life",
+          value: "BIGGER DROP",
+          caption: "The chemistry expected to outlast the car",
+          tone: "heat",
+        },
+        right: {
+          label: "Shorter life",
+          value: "BARELY MOVES",
+          caption: "The chemistry with the weaker cycle-life rating",
+          tone: "teal",
+        },
+      },
+    },
+    {
+      id: "numbers-wrong",
+      type: "beat",
+      durationSec: 4.0,
+      props: {
+        kicker: "OPTION 1",
+        title: "Either the durability numbers are wrong…",
+        tone: "heat",
+      },
+    },
+    {
+      id: "dashboard-measures-something-else",
+      type: "beat",
+      durationSec: 5.0,
+      props: {
+        kicker: "OPTION 2",
+        title: "…or the dashboard is measuring something else.",
+        tone: "teal",
+      },
+    },
+    {
+      id: "cycle-life-gap",
+      type: "beat",
+      durationSec: 3.5,
+      props: {
+        kicker: "CHAPTER 1",
+        title: "THE CYCLE-LIFE GAP",
+        subtitle: "Start with the lab numbers.",
+        tone: "teal",
+      },
+    },
+    {
+      id: "lfp-vs-nmc-cycles",
+      type: "versus",
+      durationSec: 12.5,
+      props: {
+        title: "Typical full cycles before ~80% capacity",
+        left: {
+          label: "LFP",
+          value: "3,000–6,000",
+          caption: "Lithium iron phosphate",
+          tone: "teal",
+        },
+        right: {
+          label: "NMC",
+          value: "1,000–2,000",
+          caption: "Nickel manganese cobalt",
+          tone: "heat",
+        },
+      },
+    },
+  ],
+});
