@@ -3,10 +3,10 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 case "${1:-}" in
-  LF_Video) DIR="services/LF_Video"; SERVICE="ax-longform-render"; IMAGE="Dockerfile_Node" ;;
-  LF_Cards) DIR="services/LF_Video"; SERVICE="ax-longform-card"; IMAGE="Dockerfile" ;;
-  SF_Video) DIR="services/SF_Video"; SERVICE="ax-video-render"; IMAGE="Dockerfile_Node" ;;
-  SF_Cards) DIR="services/SF_Video"; SERVICE="ax-render"; IMAGE="Dockerfile" ;;
+LF_Video) DIR="LF_Video"; SERVICE="ax-longform-render"; IMAGE="Dockerfile_Node" ;;
+LF_Cards) DIR="LF_Video"; SERVICE="ax-longform-card"; IMAGE="Dockerfile" ;;
+SF_Video) DIR="SF_Video"; SERVICE="ax-video-render"; IMAGE="Dockerfile_Node" ;;
+SF_Cards) DIR="SF_Video"; SERVICE="ax-render"; IMAGE="Dockerfile" ;;
   *) echo "Usage: $0 {LF_Video|LF_Cards|SF_Video|SF_Cards}" >&2; exit 2 ;;
 esac
 if [[ "${CONFIRM_PRODUCTION_DEPLOY:-}" != "yes" ]]; then
