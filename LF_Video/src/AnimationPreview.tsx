@@ -1,8 +1,8 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { Frame } from "./Frame";
-import { animationRegistry } from "../shared system/registry";
-import { LFAnimationTimingProvider } from "../shared system/Timing";
+import { animationRegistry } from "../shared_system/registry";
+import { LFAnimationTimingProvider } from "../shared_system/Timing";
 import { normalizeBoundedAnimationValues } from "./clampNumeric";
 
 export type AnimationPreviewProps = {

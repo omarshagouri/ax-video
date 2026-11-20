@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Img } from "remotion";
-import { theme } from "../shared system/theme";
+import { theme } from "../shared_system/theme";
 
 export type ThumbnailProps = {
   backgroundSrc: string;

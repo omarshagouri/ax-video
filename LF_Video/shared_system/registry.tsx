@@ -45,4 +45,4 @@ for (const file of modules.keys().sort()) {
 
 // Show canonical names to editors while retaining legacy input compatibility.
 export const availableAnimations = () =>
-  Object.keys(animationRegistry).filter((id) => /^VA_LF_\d{3}$/.test(id)).sort();
+  Object.keys(animationRegistry).filter((id) => /^VA-LF-\d{3}$/.test(id)).sort();

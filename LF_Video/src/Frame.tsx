@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, staticFile, Img } from "remotion";
-import { theme } from "../shared system/theme";
+import { theme } from "../shared_system/theme";
 
 /** Shared image layer. Each animation can select another file from public/. */
 export const Frame: React.FC<{ background?: string; dim?: number }> = ({ background = "bg.png", dim = 0 }) => (

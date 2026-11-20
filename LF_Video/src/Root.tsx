@@ -7,7 +7,7 @@ import { nativeClips } from "./clips";
 import { Dashboard, DashboardProps } from "./Dashboard";
 import { Thumbnail } from "./Thumbnail";
 import { AnimationPreview, AnimationPreviewProps } from "./AnimationPreview";
-import { sampleManifest } from "./sample-manifest";
+import { sampleManifest } from "./sample_manifest";
 import { totalFrames, VideoManifest } from "./manifest";
 import { validateTimeline } from "./registry";
 

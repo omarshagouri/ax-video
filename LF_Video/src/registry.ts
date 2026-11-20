@@ -2,7 +2,7 @@ import React from "react";
 import { z } from "zod";
 import { makeHtmlCard, schemaFromSlots } from "./HtmlCard";
 import { allCards } from "./cards/generated/allCards";
-import { animationRegistry } from "../shared system/registry";
+import { animationRegistry } from "../shared_system/registry";
 import { nativeClips } from "./clips";
 
 export type CardEntry = {
@@ -64,5 +64,5 @@ export function validateTimeline(
 }
 
 export const availableCards = () => Object.keys(registry).filter((id) => id.startsWith("VC-LF-")).sort();
-export const availableAnimations = () => Object.keys(registry).filter((id) => /^VA_LF_\d{3}$/.test(id)).sort();
+export const availableAnimations = () => Object.keys(registry).filter((id) => /^VA-LF-\d{3}$/.test(id)).sort();
 export const availableVisuals = () => Object.keys(registry).sort();

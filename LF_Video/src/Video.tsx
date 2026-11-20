@@ -3,8 +3,8 @@ import { AbsoluteFill, Sequence, Audio, Img, OffthreadVideo, staticFile } from "
 import { VideoManifest } from "./manifest";
 import { registry, bannedVisualIds } from "./registry";
 import { Frame } from "./Frame";
-import { theme } from "../shared system/theme";
-import { LFAnimationTimingProvider } from "../shared system/Timing";
+import { theme } from "../shared_system/theme";
+import { LFAnimationTimingProvider } from "../shared_system/Timing";
 import { normalizeBoundedAnimationValues } from "./clampNumeric";
 
 const asset = (s: string) => (s.startsWith("http") || s.startsWith("data:") ? s : staticFile(s));

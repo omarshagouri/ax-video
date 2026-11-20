@@ -6,7 +6,7 @@ import {
 } from "remotion";
 import { z } from "zod";
 import { clamp, easeOutCubic } from "./lib/ease";
-import { theme } from "../shared system/theme";
+import { theme } from "../shared_system/theme";
 
 export type CardData = {
   slots: string[];
