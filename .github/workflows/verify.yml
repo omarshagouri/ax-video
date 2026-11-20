@@ -46,7 +46,7 @@ jobs:
           node --check server/index.mjs
           python3 scripts/extract_cards.py Cards
       - name: Verify short-form renderer
-        working-directory: services/SF_Video
+        working-directory: SF_Video
         run: |
           npm ci --no-audit --no-fund
           npm run typecheck
