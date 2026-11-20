@@ -1,0 +1,4 @@
+# Direct runtime dependencies are pinned to reproducible versions.
+fastapi==0.115.8
+uvicorn[standard]==0.34.0
+playwright==1.50.0
