@@ -1,0 +1,56 @@
+name: Verify video services
+
+# One non-deploying workflow; no test-file copies or generated files committed.
+on:
+  push:
+    paths:
+      - "services/**"
+      - "scripts/**"
+      - ".github/workflows/verify.yml"
+  pull_request:
+    paths:
+      - "services/**"
+      - "scripts/**"
+      - ".github/workflows/verify.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check Python syntax without producing cache files
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import ast
+          from pathlib import Path
+          for folder in ('services/LF_Video', 'services/SF_Video'):
+              for source in Path(folder).rglob('*.py'):
+                  ast.parse(source.read_text(encoding='utf-8'), filename=str(source))
+          PY
+      - name: Verify long-form renderer
+        working-directory: services/LF_Video
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          node --check server/index.mjs
+          python3 scripts/extract_cards.py Cards
+      - name: Verify short-form renderer
+        working-directory: services/SF_Video
+        run: |
+          npm ci --no-audit --no-fund
+          npm run typecheck
+          node --check server/index.mjs
+          python3 scripts/extract_cards.py src/cards
+      - name: Confirm generated card catalog files are current
+        run: git diff --exit-code -- services/LF_Video/src/cards/generated/allCards.ts services/SF_Video/src/cards/generated/allCards.ts
