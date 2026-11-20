@@ -34,7 +34,7 @@ jobs:
           python3 - <<'PY'
           import ast
           from pathlib import Path
-          for folder in ('services/LF_Video', 'services/SF_Video'):
+          for folder in ('LF_Video', 'SF_Video'):
               for source in Path(folder).rglob('*.py'):
                   ast.parse(source.read_text(encoding='utf-8'), filename=str(source))
           PY
