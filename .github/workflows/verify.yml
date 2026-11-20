@@ -4,12 +4,12 @@ name: Verify video services
 on:
   push:
     paths:
-      - "services/**"
+      - "**"
       - "scripts/**"
       - ".github/workflows/verify.yml"
   pull_request:
     paths:
-      - "services/**"
+      - "**"
       - "scripts/**"
       - ".github/workflows/verify.yml"
   workflow_dispatch:
@@ -53,4 +53,4 @@ jobs:
           node --check server/index.mjs
           python3 scripts/extract_cards.py src/cards
       - name: Confirm generated card catalog files are current
-        run: git diff --exit-code -- services/LF_Video/src/cards/generated/allCards.ts services/SF_Video/src/cards/generated/allCards.ts
+        run: git diff --exit-code -- LF_Video/src/cards/generated/allCards.ts services/SF_Video/src/cards/generated/allCards.ts
