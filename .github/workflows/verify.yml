@@ -39,7 +39,7 @@ jobs:
                   ast.parse(source.read_text(encoding='utf-8'), filename=str(source))
           PY
       - name: Verify long-form renderer
-        working-directory: services/LF_Video
+        working-directory: LF_Video
         run: |
           npm ci --no-audit --no-fund
           npm run typecheck
