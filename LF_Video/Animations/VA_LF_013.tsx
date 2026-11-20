@@ -2,8 +2,8 @@ import React from "react";
 import { AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { clampNumeric, clampInteger } from "../src/clampNumeric";
-import { useLFPacedFrame as useCurrentFrame, useLFRealFrame, useLFRevealProgress } from "../shared system/Timing";
-import { C, clamp01, ease, staged, appear, loop01, Title, Footer, Panel } from "../shared system/ContinuousVisuals";
+import { useLFPacedFrame as useCurrentFrame, useLFRealFrame, useLFRevealProgress } from "../shared_system/Timing";
+import { C, clamp01, ease, staged, appear, loop01, Title, Footer, Panel } from "../shared_system/ContinuousVisuals";
 
 /** INPUTS: Validated labels, numbers and lists specific to VA_LF_013. */
 export const dynamicCompareSchema=z.object({

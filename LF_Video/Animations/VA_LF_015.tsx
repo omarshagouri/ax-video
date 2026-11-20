@@ -2,8 +2,8 @@ import React from "react";
 import { AbsoluteFill } from "remotion";
 import { z } from "zod";
 import { clampNumeric, clampInteger } from "../src/clampNumeric";
-import { useLFRevealProgress } from "../shared system/Timing";
-import { C, clamp, ease, reveal, P, Heading, Text } from "../shared system/EditorialVisuals";
+import { useLFRevealProgress } from "../shared_system/Timing";
+import { C, clamp, ease, reveal, P, Heading, Text } from "../shared_system/EditorialVisuals";
 
 /** INPUTS: Validated labels, numbers and lists specific to VA_LF_015. */
 export const twoClocksSchema=z.object({

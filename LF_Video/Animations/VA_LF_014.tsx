@@ -50,7 +50,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   // DRAWING: The JSX below creates the animated objects shown on screen.
   return (
     <AbsoluteFill style={{ backgroundColor: "#02090F", overflow: "hidden" }}>
-      <Img src={backgroundSrc || staticFile("dashboard-bg.png")} style={{
+      <Img src={backgroundSrc || staticFile("VA_LF_014_bg.png")} style={{
         width: "100%", height: "100%", objectFit: "fill",
       }} />
       {/* Coordinates are local to the empty center screen; all other baked UI stays untouched. */}
@@ -122,7 +122,7 @@ export const animation = {
   description: "Image-backed dashboard with a deterministic sequence of on-screen data slots.",
   slots: Object.keys(dashboardSchema.shape),
   defaultDurationSec: 6,
-  background: "dashboard-bg.png",
+  background: "VA_LF_014_bg.png",
   backgroundDim: 0,
   authoredEndFrame: undefined,
 };

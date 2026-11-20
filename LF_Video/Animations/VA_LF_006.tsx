@@ -2,8 +2,8 @@ import React from "react";
 import { AbsoluteFill, interpolate, spring, useVideoConfig } from "remotion";
 import { z } from "zod";
 import { clampNumeric, clampInteger } from "../src/clampNumeric";
-import { useLFPacedFrame as useCurrentFrame, useLFRevealProgress } from "../shared system/Timing";
-import { lfTheme, toneColor, clamp01, linearPhase, enter, fade, titleSizeFor, Title, Footer, Panel, LegendPill } from "../shared system/CoreVisuals";
+import { useLFPacedFrame as useCurrentFrame, useLFRevealProgress } from "../shared_system/Timing";
+import { lfTheme, toneColor, clamp01, linearPhase, enter, fade, titleSizeFor, Title, Footer, Panel, LegendPill } from "../shared_system/CoreVisuals";
 
 const baseProps = { title: z.string().optional() };
 

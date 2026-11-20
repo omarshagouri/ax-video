@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Regenerate src/cards/generated/allCards.ts from local VC-LF-*.py cards."""
+"""Regenerate src/cards/generated/allCards.ts from local VC_LF_*.py cards."""
 import glob
 import json
 import os
@@ -7,8 +7,8 @@ import sys
 
 src_dir = sys.argv[1] if len(sys.argv) > 1 else os.path.join(os.path.dirname(__file__), "..", "Cards")
 cards = {}
-for path in sorted(glob.glob(os.path.join(src_dir, "VC-LF-*.py"))):
-    stem = os.path.basename(path)[:-3]
+for path in sorted(glob.glob(os.path.join(src_dir, "VC_LF_*.py"))):
+    stem = os.path.basename(path)[:-3].replace("_", "-")
     if stem == "VC-LF-016":
         raise SystemExit("VC-LF-016 has been permanently retired from AX; delete this source card before regenerating.")
     ns = {}
@@ -26,7 +26,7 @@ for path in sorted(glob.glob(os.path.join(src_dir, "VC-LF-*.py"))):
     }
 
 hdr = (
-    "// AUTO-GENERATED from Cards/VC-LF-*.py - do not edit by hand.\n"
+    "// AUTO-GENERATED from Cards/VC_LF_*.py - do not edit by hand.\n"
     'import type { CardData } from "../../HtmlCard";\n\n'
     "export const allCards: Record<string, CardData> = "
 )
