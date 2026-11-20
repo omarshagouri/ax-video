@@ -1,3 +1,19 @@
+/**
+ * VA_LF_015 — Two aging clocks: cycling stops while parked; calendar time continues.
+ *
+ * SEVEN EDITING SECTIONS (all local to THIS animation):
+ * 1. ANIMATION SETTINGS — see the final 'animation' object (section 7).
+ * 2. EDITABLE TEXT AND VALUES — input schema, labels and numeric limits below.
+ * 3. COLORS AND SIZES — JSX styles and C; fontSize, width, height, fill.
+ * 4. ELEMENT POSITIONS — style left/top/right/bottom or SVG x/y coordinates.
+ * 5. MOVEMENT AND TIMING — progress, frames, easing, reveal and loop cues.
+ * 6. ANIMATION COMPONENT — React JSX describing the visual on each frame.
+ * 7. REGISTRATION CONFIGURATION — final exported 'animation' settings block.
+ *
+ * The canvas is 1920 × 1080. Imported shared_system helpers supply reusable
+ * drawing and timing primitives; this file controls its own unique behavior.
+ * Edit only the relevant values; do not change shared code for local changes.
+ */
 import React from "react";
 import { AbsoluteFill } from "remotion";
 import { z } from "zod";
@@ -5,7 +21,12 @@ import { clampNumeric, clampInteger } from "../src/clampNumeric";
 import { useLFRevealProgress } from "../shared_system/Timing";
 import { C, clamp, ease, reveal, P, Heading, Text } from "../shared_system/EditorialVisuals";
 
-/** INPUTS: Validated labels, numbers and lists specific to VA_LF_015. */
+/** INPUTS: SECTION 2 — EDITABLE TEXT AND VALUES.
+ * This schema defines accepted labels, numeric controls and defaults.
+ * z.string() handles text; clampNumeric(min,max) bounds a numeric control;
+ * .default(value) supplies a fallback when an input is omitted.
+ * Change the local values here, without editing shared_system code.
+ */
 export const twoClocksSchema=z.object({
   title:z.string().max(85).default("Your battery has two clocks"),
   cycleLabel:z.string().max(32).default("Charging cycles"),
@@ -13,8 +34,22 @@ export const twoClocksSchema=z.object({
   takeaway:z.string().max(70).default("One slows down when parked. One does not."),
   footer:z.string().max(135).optional(),
 });
-/** VISUAL: Only this file controls its own shapes, labels, movement and layout. */
-// TIMING: Shared hooks control when these local effects appear; edit reveal cues here.
+/** VISUAL: SECTION 3 — COLORS AND SIZES.
+ * Edit fill/background/color, fontSize, width and height in the JSX styles.
+ * Use the imported C for consistent shared colors when appropriate.
+ *
+ * SECTION 4 — ELEMENT POSITIONS.
+ * Position each object using JSX style offsets, flex/grid settings or SVG
+ * coordinates. These positions belong to this animation, not the shared UI.
+ *
+ * SECTION 5 — MOVEMENT AND TIMING.
+ * Hooks provide the frame or progress value; local formulas control entrances,
+ * easing, reveals and continuous loops. Modify their cues to change motion.
+ *
+ * SECTION 6 — ANIMATION COMPONENT.
+ * The exported React component below draws this animation's on-screen objects.
+ * Its return/JSX contains each text label, panel, icon, line and SVG element.
+ */
 export const VALF015TwoClocks:React.FC<any>=({title,cycleLabel,calendarLabel,takeaway,footer})=>{
   const progress=useLFRevealProgress();
   const centers=[575,1345],cy=574,r=148;
@@ -60,7 +95,8 @@ export const VALF015TwoClocks:React.FC<any>=({title,cycleLabel,calendarLabel,tak
 };
 
 
-/** SETTINGS: Edit this block for this animation only. New files register automatically.
+/** SETTINGS: SECTION 7 — REGISTRATION CONFIGURATION.
+ * Edit this final block for this animation only. New files register automatically.
  * background: image in public/; backgroundDim: 0 (clear) to 1 (black).
  * authoredEndFrame: last entrance cue, NOT the video duration.
  * The older hyphenated ID is accepted by the renderer as an input alias.
