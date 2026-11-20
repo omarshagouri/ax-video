@@ -2,7 +2,7 @@
 
 Independent from the Shorts services.
 Existing Card Builder can point to this service and keep using POST /render-beat.
-Cards live in the SAME ax-longform GitHub repo under video-service/Cards/.
+Card source lives in the local Cards/ directory and is bundled into this service.
 
 Native output: 1920x1080, 30 fps, H.264, no audio.
 """
@@ -15,15 +15,9 @@ import tempfile
 import shutil
 import re
 
-import requests
 from fastapi import FastAPI, Request, HTTPException
 from playwright.async_api import async_playwright
 
-GH_USER = os.environ.get("GH_USER", "omarshagouri")
-GH_REPO = os.environ.get("GH_REPO", "ax-longform")
-GH_BRANCH = os.environ.get("GH_BRANCH", "main")
-CARDS_DIR = os.environ.get("CARDS_DIR", "video-service/Cards")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
 RENDER_API_KEY = os.environ["LONGFORM_RENDER_API_KEY"]
 
 WIDTH = 1920
@@ -71,14 +65,11 @@ async def shutdown():
     if _pw:
         await _pw.stop()
 
-def _auth_headers():
-    return {"Authorization": f"token {GITHUB_TOKEN}"} if GITHUB_TOKEN else {}
-
 def load_card(card_id: str):
     if not re.fullmatch(r"VC-LF-\d{3}", card_id):
         raise HTTPException(400, "Invalid card ID")
     # Unified repository deployments package Cards/ inside this container.
-    local_path = os.path.join("Cards", f"{card_id}.py")
+    local_path = os.path.join("Cards", f"{card_id.replace('-', '_')}.py")
     if os.path.isdir("Cards"):
         if not os.path.isfile(local_path):
             raise HTTPException(404, f"{card_id} is not in the packaged card library")
@@ -89,22 +80,7 @@ def load_card(card_id: str):
         if not isinstance(card, dict) or card.get("id") != card_id:
             raise HTTPException(500, "Packaged card definition is invalid")
         return card
-    # Legacy fallback, only used by older deployments without bundled cards.
-    url = f"https://raw.githubusercontent.com/{GH_USER}/{GH_REPO}/{GH_BRANCH}/{CARDS_DIR}/{card_id}.py"
-    r = requests.get(url, headers=_auth_headers(), timeout=30)
-    if r.status_code == 404:
-        raise HTTPException(404, f"{card_id}.py not found at {GH_REPO}/{CARDS_DIR}")
-    if r.status_code in (401, 403):
-        raise HTTPException(500, "GitHub token rejected or private repo access missing")
-    r.raise_for_status()
-    ns = {}
-    exec(r.text, ns)
-    card = ns.get("CARD")
-    if not isinstance(card, dict):
-        raise HTTPException(500, f"{card_id}.py does not define CARD")
-    if card.get("id") != card_id:
-        raise HTTPException(400, f"file/card id mismatch: requested {card_id}, CARD.id={card.get('id')}")
-    return card
+    raise HTTPException(500, "The local Cards directory was not packaged")
 
 def parse_duration(text, default):
     text = str(text or "").strip().lower().replace("s", "")
