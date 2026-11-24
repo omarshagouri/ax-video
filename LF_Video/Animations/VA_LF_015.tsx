@@ -108,6 +108,8 @@ export const animation = {
   description: "Two aging clocks: cycling stops while parked; calendar time continues.",
   slots: Object.keys(twoClocksSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,

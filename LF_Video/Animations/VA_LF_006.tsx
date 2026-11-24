@@ -169,6 +169,13 @@ export const animation = {
   description: "Large animated numeric count-up for money, percentages, capacity, fleet size, range, or cycle count.",
   slots: Object.keys(counterSchema.shape),
   defaultDurationSec: 7,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "value": 87,
+    "decimals": 0,
+    "suffix": "%",
+    "label": "Battery capacity"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 79,

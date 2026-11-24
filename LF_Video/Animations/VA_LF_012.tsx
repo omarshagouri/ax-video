@@ -94,6 +94,16 @@ export const animation = {
   description: "Continuous sensor data packets feed BMS logic and produce an animated control action.",
   slots: Object.keys(dataDecisionSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "sensors": [
+      "Voltage",
+      "Temperature",
+      "Current"
+    ],
+    "decisionLabel": "BMS decision",
+    "actionLabel": "Control action"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 83,

@@ -122,6 +122,8 @@ export const animation = {
   description: "A one-time cold-weather range-estimate change beside a stable battery-health reference.",
   slots: Object.keys(rangeVsHealthSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,

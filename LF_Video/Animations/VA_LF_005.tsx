@@ -197,6 +197,26 @@ export const animation = {
   description: "Animated milestone timeline for software, recalls, legal events, or development stages.",
   slots: Object.keys(timelineSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "milestones": [
+      {
+        "label": "Baseline",
+        "value": "V1",
+        "tone": "white"
+      },
+      {
+        "label": "Update",
+        "value": "V2",
+        "tone": "teal"
+      },
+      {
+        "label": "Current",
+        "value": "V3",
+        "tone": "cold"
+      }
+    ]
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 76,

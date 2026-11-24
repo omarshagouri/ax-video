@@ -259,6 +259,17 @@ export const animation = {
   description: "Animated process/energy-flow diagram with 2-5 nodes and a repeating flow pulse.",
   slots: Object.keys(processFlowSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "nodes": [
+      "Charger",
+      "BMS",
+      "Pack",
+      "Cells"
+    ],
+    "centerLabel": "Vehicle controls charging power",
+    "direction": "forward"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 86,

@@ -95,6 +95,16 @@ export const animation = {
   description: "Continuous multi-packet energy/data flow across 2-5 system nodes.",
   slots: Object.keys(packetStreamSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "nodes": [
+      "Charger",
+      "BMS",
+      "Battery"
+    ],
+    "intensity": 3,
+    "flowLabel": "Live energy flow"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 60,

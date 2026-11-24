@@ -158,6 +158,16 @@ export const animation = {
   description: "Image-backed dashboard with a deterministic sequence of on-screen data slots.",
   slots: Object.keys(dashboardSchema.shape),
   defaultDurationSec: 6,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "title": "BATTERY STATUS",
+    "subtitle": "Operating overview",
+    "mainValue": "82",
+    "mainUnit": "%",
+    "progress": 82,
+    "detail": "Monitoring active",
+    "status": "READY"
+  },
   background: "VA_LF_014_bg.png",
   backgroundDim: 0,
   authoredEndFrame: undefined,

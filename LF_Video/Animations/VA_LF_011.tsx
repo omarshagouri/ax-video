@@ -95,6 +95,12 @@ export const animation = {
   description: "Displayed battery estimate shifts while usable-energy reference stays stable; scan markers remain active.",
   slots: Object.keys(calibrationSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "displayedStart": 78,
+    "displayedEnd": 86,
+    "usablePct": 82
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 75,

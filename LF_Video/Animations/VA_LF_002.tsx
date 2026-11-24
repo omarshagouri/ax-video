@@ -238,6 +238,14 @@ export const animation = {
   description: "Two animated horizontal battery gauges for before/after capacity, usable-window, or SOC comparison.",
   slots: Object.keys(beforeAfterSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "beforeLabel": "Before",
+    "beforePct": 92,
+    "afterLabel": "After",
+    "afterPct": 84,
+    "deltaLabel": "−8 pts"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 72,

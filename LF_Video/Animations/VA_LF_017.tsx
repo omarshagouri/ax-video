@@ -114,6 +114,8 @@ export const animation = {
   description: "Qualitative temperature versus stored-SOC matrix comparing two clearly labeled conditions.",
   slots: Object.keys(socHeatSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,

@@ -121,6 +121,8 @@ export const animation = {
   description: "Battery cell cross section with local particle motion and one-way illustrative interface growth.",
   slots: Object.keys(cellAgingSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,

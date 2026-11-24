@@ -304,6 +304,27 @@ export const animation = {
   description: "Animated one- or two-series line chart drawn over time.",
   slots: Object.keys(lineChartSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "seriesALabel": "Observed",
+    "seriesA": [
+      100,
+      97,
+      94,
+      91,
+      89
+    ],
+    "seriesBLabel": "Reference",
+    "seriesB": [
+      100,
+      99,
+      98,
+      97,
+      96
+    ],
+    "xLabel": "Time",
+    "yLabel": "Capacity (%)"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 73,

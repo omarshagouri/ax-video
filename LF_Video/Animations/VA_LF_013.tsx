@@ -126,6 +126,15 @@ export const animation = {
   description: "Two side-by-side normalized progress bars, filled to leftIntensity/rightIntensity percent of their gray 0-100 reference tracks.",
   slots: Object.keys(dynamicCompareSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "leftLabel": "Before",
+    "rightLabel": "After",
+    "leftValue": "82%",
+    "rightValue": "67%",
+    "leftIntensity": 82,
+    "rightIntensity": 67
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 65,

@@ -108,6 +108,8 @@ export const animation = {
   description: "One-time reveal of short-term range variation versus a persistent long-term capacity trend.",
   slots: Object.keys(fluctuationTrendSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,

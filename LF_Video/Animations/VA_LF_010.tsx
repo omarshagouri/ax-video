@@ -91,6 +91,13 @@ export const animation = {
   description: "Continuously pulsing cell heat map with optional moving cooling sweep.",
   slots: Object.keys(thermalSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "heatLevel": 70,
+    "hotspotRow": 2,
+    "hotspotCol": 5,
+    "cooling": true
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 75,

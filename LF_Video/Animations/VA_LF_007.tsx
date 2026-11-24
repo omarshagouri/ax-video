@@ -211,6 +211,19 @@ export const animation = {
   description: "Animated before/after system or software-version comparison with short change lists.",
   slots: Object.keys(systemDeltaSchema.shape),
   defaultDurationSec: 9,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "beforeLabel": "Before",
+    "afterLabel": "After",
+    "beforeItems": [
+      "Old logic",
+      "Manual checks"
+    ],
+    "afterItems": [
+      "Updated logic",
+      "Automated checks"
+    ]
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 88,

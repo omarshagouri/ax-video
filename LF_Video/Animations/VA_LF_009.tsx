@@ -101,6 +101,14 @@ export const animation = {
   description: "Continuous input stream passes through a control gate and exits at a reduced rate.",
   slots: Object.keys(throttleSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "inputLabel": "Requested",
+    "gateLabel": "BMS Gate",
+    "outputLabel": "Delivered",
+    "inputRate": 90,
+    "outputRate": 65
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 75,

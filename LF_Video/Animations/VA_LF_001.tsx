@@ -239,6 +239,12 @@ export const animation = {
   description: "Animated battery fill with usable, reserve, and optional remaining regions.",
   slots: Object.keys(batteryBufferSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {
+    "usablePct": 82,
+    "bufferPct": 18,
+    "title": "Gross capacity vs usable capacity"
+  },
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 68,

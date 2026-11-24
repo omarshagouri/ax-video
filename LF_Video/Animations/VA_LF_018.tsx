@@ -118,6 +118,8 @@ export const animation = {
   description: "Observed mild versus hot climate groups and sourced difference in annual capacity decline.",
   slots: Object.keys(fleetEvidenceSchema.shape),
   defaultDurationSec: 8,
+  // Preview-only example values. Edit them here to see your changes in Studio.
+  previewProps: {},
   background: "bg.png",
   backgroundDim: 0,
   authoredEndFrame: 110,
